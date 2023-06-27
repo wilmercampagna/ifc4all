@@ -1,0 +1,28 @@
+{
+  "name": "ifc4all",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "buildcss": "tailwindcss build -i ./styles.css -o dist/assets/styles.css",
+    "preview": "vite preview"
+  },
+  "overrides": {
+    "three": "^0.148.0"
+  },
+  "dependencies": {
+    "@egoist/tailwindcss-icons": "^1.1.0",
+    "@iconify/json": "^2.2.81",
+    "three": "^0.148.0",
+    "three-mesh-bvh": "^0.6.0",
+    "web-ifc-three": "^0.0.125"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.2",
+    "vite": "^4.3.9"
+  }
+}
