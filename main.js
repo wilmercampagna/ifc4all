@@ -40,7 +40,7 @@ document.querySelector('#app').innerHTML = `
     </a>
     <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
       <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
+    </a>    
     <h1>Hello Vite!</h1>
     <div class="card">
     <div class="">
@@ -54,13 +54,19 @@ document.querySelector('#app').innerHTML = `
           <input id="file-input" type="file" class="hidden" />
       </label>
     </div>
+    <div class="mode">
+      <a href="?allowvr=true" id="vr">Allow VR</a>
+      <a href="?" id="nonvr">Use Non-VR Mode</a>
+    </div>
     <div class="message-container" id="message-container" style="display: block;">
       <p class="message" id="id-output" style="display: block;">_</p>
       <p class="message" id="desc-output" style="display: block;">_</p>
     </div>
   </div>
   <div class="canvas">
-    <canvas id="three-canvas"></canvas>
+    <canvas id="three-canvas">
+      
+    </canvas>
   </div>
     </div>
   </div>
@@ -87,16 +93,27 @@ scene.add(ambientLight);
 scene.add(grid);
 scene.add(axes);
 
-//Notify WebGLRenderer instance to enable XR rendering
-renderer.xr.enabled = true;
+// //Notify WebGLRenderer instance to enable XR rendering
+// renderer.xr.enabled = true;
 
-//Append button to engage VR mode
-document.body.appendChild( VRButton.createButton( renderer ) );
+// //Append button to engage VR mode
+// document.body.appendChild( VRButton.createButton( renderer ) );
 
-//Creates the orbit controls (to navigate the scene)
-const controls = new OrbitControls(camera, threeCanvas);
-controls.enableDamping = true;
-controls.target.set(-2, 0, 0);
+//Check if VR is allowed
+const params = (new URL(document.location)).searchParams;
+const allowvr = params.get('allowvr') === 'true';
+if (allowvr) {
+  renderer.xr.enabled = true;
+  document.body.appendChild(VRButton.createButton(renderer));
+  document.querySelector('#vr').style.display = 'none';
+} else {
+  // no VR, add some controls
+  const controls = new OrbitControls(camera, threeCanvas);
+  controls.target.set(0, 1.6, -2);
+  controls.update();
+  document.querySelector('#nonvr').style.display = 'none';
+}
+
 
 //Variables for VR hand controllers
 let controller1, controller2;
@@ -147,21 +164,21 @@ cameraDolly.add(controller2);
 cameraDolly.add(controllerGrip1);
 cameraDolly.add(controllerGrip2);
 
-//Animation loop
 const animate = () => {
-    //WebXR needs 'setAnimationLoop' as opposed to 'requestAnimationFrame'
-    requestAnimationFrame( animate );
-    renderer.setAnimationLoop( render );
+  //WebXR needs 'setAnimationLoop' as opposed to 'requestAnimationFrame'
+  // requestAnimationFrame( animate );
+  renderer.setAnimationLoop( render );
 };
 
+//Animation loop
 const clock = new Clock();
 
 function render() {
-    const dt = clock.getDelta();
-    if (controller1) { handleUserMovement(dt) }
-    renderer.render( scene, camera );
+  const dt = clock.getDelta();
+  if (controller1) { handleUserMovement(dt) }
+  renderer.render( scene, camera );
 }
-
+  
 animate();
 
 //Adjust the viewport to the size of the browser
@@ -362,9 +379,9 @@ function allowMovement() { letUserMove = true }
 function stopMovement() { letUserMove = false }
 function handleUserMovement(dt) {
     if (letUserMove) {
-        const speed = 2;
-        const moveZ = -dt * speed
-        const saveQuat = cameraDolly.quaternion.clone();
+        let speed = 2;
+        let moveZ = -dt * speed
+        let saveQuat = cameraDolly.quaternion.clone();
         var holder = new Quaternion()
         dummyCam.getWorldQuaternion(holder)
         cameraDolly.quaternion.copy(holder);
