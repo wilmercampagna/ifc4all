@@ -1,6 +1,7 @@
 import './style.css'
 import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
+import logo from '/logo.png'
+import grua from '/grua.png'
 import navBar from './src/Components/NavBar.js'
 
 import {
@@ -39,9 +40,13 @@ document.querySelector('#nav').append(navBar);
 
 document.querySelector('#app').innerHTML = `
   <div>    
-    <h1>IfcVR made for wilmercampagna in collaboration with GRUA</h1>
+    <div class="flex p-5 font-semibold justify-center">IfcVR made for wilmercampagna 
+      <img src="${logo}" alt="Logo" class="h-5 w-5 mr-2 ml-2">
+      in collaboration with GRUA 
+      <img src="${grua}" alt="Logo" class="h-6  mr-2 ml-2">
+    </div>
     <div class="card">
-    <div class="">
+    <div class="pl-5 pr-5">
     <div class="flex items-center justify-center w-full">
       <label for="file-input" class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
           <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -52,9 +57,9 @@ document.querySelector('#app').innerHTML = `
           <input id="file-input" type="file" class="hidden" />
       </label>
     </div>
-    <div class="mode">
-      <a href="?allowvr=true" id="vr">Mode VR</a>
-      <a href="?" id="nonvr">Mode Non-VR</a>
+    <div class="pl-5 mt-2 pt-1 pb-1 bg-cyan-500 hover:bg-cyan-300 w-fit rounded-full text-white">
+      <a class="pr-5" href="?allowvr=true" id="vr">Mode VR</a>
+      <a class="pr-5" href="?" id="nonvr">Mode Non-VR</a>
     </div>
     <div class="message-container" id="message-container" style="display: block;">
       <p class="message" id="id-output" style="display: block;">_</p>
