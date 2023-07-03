@@ -9,6 +9,7 @@ export default defineConfig({
         targets: ['defaults', 'not IE 11'],
       }),
   ],
+  base: 'https://wilmercampagna.github.io/ifc4all/'
   worker: {
     plugins: [
         comlink(),
