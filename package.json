@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "overrides": {
-    "three": "^0.154.0"
+    "three@0.149.0": {
+      "three" :"^0.154.0"
+    }
   },
   "dependencies": {
     "@egoist/tailwindcss-icons": "^1.1.0",
