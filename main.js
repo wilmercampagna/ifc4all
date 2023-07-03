@@ -1,6 +1,7 @@
 import './style.css'
 import javascriptLogo from './javascript.svg'
 import viteLogo from '/vite.svg'
+import navBar from './src/Components/NavBar.js'
 
 import {
   Scene,
@@ -18,10 +19,11 @@ import {
   sRGBEncoding
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+// import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+import { VRButton } from './src/helpers/VRButton.js';
 import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
-import { IFCLoader } from "three/examples/jsm/loaders/IFCLoader.js";
+import { IFCLoader } from "web-ifc-three/IFCLoader.js";
 // import { IFCLoader } from "./public/wasm/IFCLoader.js";
 import {
   acceleratedRaycast,
@@ -33,15 +35,11 @@ import ambientLight from './src/helpers/Lights.js';
 import { grid, axes } from './src/helpers/Grids.js';	
 import { list } from 'postcss';
 
+document.querySelector('#nav').append(navBar);
+
 document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>    
-    <h1>Hello Vite!</h1>
+  <div>    
+    <h1>IfcVR made for wilmercampagna in collaboration with GRUA</h1>
     <div class="card">
     <div class="">
     <div class="flex items-center justify-center w-full">
@@ -55,8 +53,8 @@ document.querySelector('#app').innerHTML = `
       </label>
     </div>
     <div class="mode">
-      <a href="?allowvr=true" id="vr">Allow VR</a>
-      <a href="?" id="nonvr">Use Non-VR Mode</a>
+      <a href="?allowvr=true" id="vr">Mode VR</a>
+      <a href="?" id="nonvr">Mode Non-VR</a>
     </div>
     <div class="message-container" id="message-container" style="display: block;">
       <p class="message" id="id-output" style="display: block;">_</p>
@@ -84,7 +82,7 @@ const renderer = new WebGLRenderer({
 
 renderer.setSize(size.width, size.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.outputEncoding = sRGBEncoding;
+// renderer.outputColorSpace = sRGBEncoding;
 
 // Add camera, grid, axes and lights to the scene
 scene.add(cameraDolly);
@@ -93,18 +91,14 @@ scene.add(ambientLight);
 scene.add(grid);
 scene.add(axes);
 
-// //Notify WebGLRenderer instance to enable XR rendering
-// renderer.xr.enabled = true;
-
-// //Append button to engage VR mode
-// document.body.appendChild( VRButton.createButton( renderer ) );
-
 //Check if VR is allowed
 const params = (new URL(document.location)).searchParams;
 const allowvr = params.get('allowvr') === 'true';
 if (allowvr) {
   renderer.xr.enabled = true;
-  document.body.appendChild(VRButton.createButton(renderer));
+  const button = new VRButton( renderer );
+  document.body.append(button);
+  // document.body.appendChild(VRButton.createButton(renderer));
   document.querySelector('#vr').style.display = 'none';
 } else {
   // no VR, add some controls
@@ -113,7 +107,6 @@ if (allowvr) {
   controls.update();
   document.querySelector('#nonvr').style.display = 'none';
 }
-
 
 //Variables for VR hand controllers
 let controller1, controller2;
@@ -140,7 +133,6 @@ controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGri
 controllerGrip2 = renderer.xr.getControllerGrip( 1 );
 controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
 
-
 //Lines to shoot out from VR controllers to help aim
 const geometry = new BufferGeometry().setFromPoints( [ new Vector3( 0, 0, 0 ), new Vector3( 0, 0, - 1 ) ] );
 const line = new Line( geometry );
@@ -152,8 +144,8 @@ scene.add( controller2 );
 scene.add( controllerGrip1 );
 scene.add( controllerGrip2 );
 
-controller1.name = "Left Controller"
-controller2.name = "Right Controller"
+controller1.name = "Right Controller" 
+controller2.name = "Left Controller"
 
 controller1.add( line.clone() );
 controller2.add( line.clone() );
@@ -192,19 +184,26 @@ window.addEventListener("resize", () => {
 
 // Sets up the IFC loading
 const ifcModels = [];
+
 const ifcLoader = new IFCLoader();
 
-// setUpMultiThreading();
-ifcLoader.ifcManager.setWasmPath("wasm/");
-// ifcLoader.ifcManager.setWasmPath("web-ifc/");
-// console.log('the ifc loader:', ifcLoader.ifcManager.useWebWorkers())
-// ifcLoader.ifcManager.useWebWorkers(true, "wasm/IFCWorker.js")
-// ifcLoader.ifcManager.applyWebIfcConfig({
-//     COORDINATE_TO_ORIGIN: true,
-//     USE_FAST_BOOLS: false
-// });
+const setupIfcLoader = async () => {
+  // const ifcLoader = new IFCLoader();
+  await ifcLoader.ifcManager.setWasmPath("wasm/");
+  ifcLoader.ifcManager.applyWebIfcConfig({
+    COORDINATE_TO_ORIGIN: true,
+    USE_FAST_BOOLS: false,
+  });
+  await ifcLoader.ifcManager.useWebWorkers(false, "wasm/IFCWorker.js");
+  // ifcLoader.ifcManager.useJSONData(true);
+  ifcLoader.ifcManager.setupThreeMeshBVH(
+    computeBoundsTree,
+    disposeBoundsTree,
+    acceleratedRaycast
+  );
+};
 
-console.log(ifcLoader.ifcManager)
+setupIfcLoader();
 
 const lambMaterial = new MeshLambertMaterial({ transparent: true, opacity: 0.1, color: 0x77aaff });
 
@@ -213,6 +212,12 @@ input.addEventListener(
   "change",
   async (changed) => {
     const ifcURL = URL.createObjectURL(changed.target.files[0]);
+    // await ifcLoader.ifcManager.useWebWorkers(true, "wasm/IFCWorker.js");
+    // const ifcModel = await ifcLoader.loadAsync(ifcURL);
+    // const modelCopy = new Mesh(ifcModel.geometry, lambMaterial);
+    // ifcModels.push(ifcModel);
+    // scene.add(modelCopy)
+    // scene.add(ifcModel)
     await ifcLoader.load(ifcURL, (ifcModel) => {
       //Make a translucent copy geometry - so when IFC model is hidden on item highlight, the remaining items take 'ghost' view  
       const modelCopy = new Mesh(ifcModel.geometry, lambMaterial);
@@ -222,13 +227,6 @@ input.addEventListener(
     });
   },
   false
-);
-
-// Sets up optimized picking
-ifcLoader.ifcManager.setupThreeMeshBVH(
-  computeBoundsTree,
-  disposeBoundsTree,
-  acceleratedRaycast
 );
 
 //Variable for raycaster to 'pick' objects
@@ -251,38 +249,41 @@ function mouseCast(event) {
   
   // Places it on the camera pointing to the mouse
   raycaster.setFromCamera(mouse, camera);
-  console.log("The raycaster: ", raycaster)
+  // console.log("The raycaster: ", raycaster)
   const listOut = raycaster.intersectObjects(ifcModels);
 
   // Casts a ray
-  console.log("listOut : ", listOut)
   return listOut[0];
 }
 
-function mousePick(event) {
-  const found = mouseCast(event)[0];
+async function mousePick(event) {
+  const found = mouseCast(event);
   if (found) {
     const index = found.faceIndex;
     const geometry = found.object.geometry;
     const ifc = ifcLoader.ifcManager;
     const id = ifc.getExpressId(geometry, index);
-    console.log(id);
+    const modelID = found.object.modelID;
+    const props = await ifc.getItemProperties(modelID, id);
+    // console.log(id);
+    // console.log(found.object);
+    const expId = props.expressID;
+    outputId.innerHTML = `ExpressID : ${expId}`;
+    const desc = props.Name.value;
+    outputDesc.innerHTML = `Name: ${desc}`;
+    // console.log("The props: ", props)
   }
 }
 
 threeCanvas.ondblclick = mousePick;
 
-console.log('the ifc loader ifc manager:', ifcLoader.ifcManager)
+// console.log('the ifc loader ifc manager:', ifcLoader.ifcManager)
 
-
-async function cast(controller) {
-    const myTempMatrix = tempMatrix.identity().extractRotation( controller.matrixWorld );
-    console.log(myTempMatrix)
-    raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
-    raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( myTempMatrix );
-    const caster = raycaster.intersectObjects(ifcModels);
-    console.log('the raycaster:', caster)
-    return caster
+function cast(controller) {
+  const myTempMatrix = tempMatrix.identity().extractRotation( controller.matrixWorld );
+  raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+  raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( myTempMatrix );
+  return raycaster.intersectObjects(ifcModels);
 }
 
 const outputId = document.getElementById("id-output");
@@ -292,8 +293,8 @@ let propMesh = new HTMLMesh( messageBlock );
 
 async function pick(event) {
     const controller = event.target;
-    console.log('the controller:', controller)
     const found = cast(controller)[0];
+    console.log(cast(controller))
     console.log('the found:', found)
     if (found) {
         const index = found.faceIndex;
@@ -310,9 +311,9 @@ async function pick(event) {
         outputDesc.innerHTML = `Name: ${desc}`;
         propMesh.removeFromParent();
         propMesh = new HTMLMesh( messageBlock );
-        const setX = found.point.x + 0.3*(cameraDolly.position.x - found.point.x);
-        const setY = found.point.y + 0.3*(cameraDolly.position.y - found.point.y);
-        const setZ = found.point.z + 0.3*(cameraDolly.position.z - found.point.z);
+        const setX = found.point.x + 0.1*(cameraDolly.position.x - found.point.x);
+        const setY = found.point.y + 0.1*(cameraDolly.position.y - found.point.y);
+        const setZ = found.point.z + 0.1*(cameraDolly.position.z - found.point.z);
         propMesh.position.set( setX, setY, setZ );
         // propMesh.quaternion = found.object.mesh.quaternion
         propMesh.lookAt(cameraDolly.position);
@@ -321,8 +322,8 @@ async function pick(event) {
     }
 }
 
-async function hideDetails() {
-    await propMesh.removeFromParent();
+function hideDetails() {
+    propMesh.removeFromParent();
 }
 
 //Will apply material completely transparent on select
@@ -334,9 +335,9 @@ const highlightStrongMaterial = new MeshLambertMaterial({
 })
 
 //For seeing through items
-function highlight(event) {
-    const controller = event.target;
-    console.log('the cast:', cast(controller))
+async function highlight(event) {
+    const controller = await event.target;
+    console.log('the controller:', controller)
     const found = cast(controller)[0];
     console.log('the found:', found)
     if (found) {
@@ -345,7 +346,7 @@ function highlight(event) {
         const id = ifcLoader.ifcManager.getExpressId(geometry, index);
         const modelID = found.object.modelID;
         //Creates 'highlight' subset
-        ifcLoader.ifcManager.createSubset({
+        await ifcLoader.ifcManager.createSubset({
             modelID: modelID,
             ids: [id],
             material: highlightStrongMaterial,
@@ -363,11 +364,11 @@ function highlight(event) {
 }
 
 //Removes previous highlight
-function clearHighlight(event) {
+async function clearHighlight(event) {
     //Loop through all loaded IFC models
     for (var i = 0; i < ifcModels.length; i++) {
         //Remove the 'highlight' subset
-        ifcLoader.ifcManager.removeSubset(ifcModels[i].modelID, highlightStrongMaterial, 'highlight-sub');
+        await ifcLoader.ifcManager.removeSubset(ifcModels[i].modelID, highlightStrongMaterial, 'highlight-sub');
         //Make the IFC Model visible again
         ifcModels[i].visible = true;
     }
