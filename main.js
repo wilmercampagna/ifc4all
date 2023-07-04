@@ -1,5 +1,4 @@
 import './style.css'
-import javascriptLogo from './javascript.svg'
 import logo from '/logo.png'
 import grua from '/grua.png'
 import navBar from './src/Components/NavBar.js'
@@ -17,7 +16,7 @@ import {
   Mesh,
   Clock,
   Quaternion,
-  sRGBEncoding
+  // sRGBEncoding
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
@@ -34,45 +33,49 @@ import {
 import { size, camera, cameraDolly, dummyCam } from './src/helpers/Camera.js';
 import ambientLight from './src/helpers/Lights.js';
 import { grid, axes } from './src/helpers/Grids.js';	
+import { CanvasUI } from './src/helpers/CanvasUI.js';
 import { list } from 'postcss';
 
 document.querySelector('#nav').append(navBar);
 
 document.querySelector('#app').innerHTML = `
   <div>    
-    <div class="flex p-5 font-semibold justify-center">IfcVR made for wilmercampagna 
-      <img src="${logo}" alt="Logo" class="h-5 w-5 mr-2 ml-2">
-      in collaboration with GRUA 
-      <img src="${grua}" alt="Logo" class="h-6  mr-2 ml-2">
-    </div>
-    <div class="card">
-    <div class="pl-5 pr-5">
-    <div class="flex items-center justify-center w-full">
-      <label for="file-input" class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-          <div class="flex flex-col items-center justify-center pt-5 pb-6">
-              <svg aria-hidden="true" class="w-5 h-5 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-              <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-              <p class="text-xs text-gray-500 dark:text-gray-500 font-bold">ifc files</p>
-          </div>
-          <input id="file-input" type="file" class="hidden" />
-      </label>
-    </div>
-    <div class="pl-5 mt-2 pt-1 pb-1 bg-cyan-500 hover:bg-cyan-300 w-fit rounded-full text-white">
-      <a class="pr-5" href="?allowvr=true" id="vr">Mode VR</a>
-      <a class="pr-5" href="?" id="nonvr">Mode Non-VR</a>
-    </div>
-    <div class="message-container" id="message-container" style="display: block;">
-      <p class="message" id="id-output" style="display: block;">_</p>
-      <p class="message" id="desc-output" style="display: block;">_</p>
-    </div>
-  </div>
-  <div class="canvas">
-    <canvas id="three-canvas">
+  <div class="relative">
+    <div class="pl-5 pr-5 w-full absolute">
+      <div class="flex p-5 font-semibold justify-center text-cyan-600">IfcVR made for wilmercampagna 
+        <img src="${logo}" alt="Logo" class="h-5 w-5 mr-2 ml-2">
+        in collaboration with GRUA 
+        <img src="${grua}" alt="Logo" class="h-6  mr-2 ml-2">
+      </div>
+      <div class="flex justify-center items-center text-cyan-600 font-semibold">     
+        <div class="w-1/4 mr-5">
+          <label for="file-input" class="flex flex-col items-center justify-center w-full h-fit border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-opacity-50 bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+              <div class="flex flex-col items-center justify-center pt-1">
+                  <svg aria-hidden="true" class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                  <p class="text-gray-500 dark:text-gray-400"><span class="font-semibold text-xl">Click to upload</span> </p>
+                  <p class="text-gray-500 dark:text-gray-500 font-bold text-lg">ifc files</p>
+              </div>
+              <input id="file-input" type="file" class="hidden" />
+          </label>
+        </div>
+        <div class="pl-5 mt-2 pt-1 pb-1 bg-cyan-500 hover:bg-cyan-300 w-fit h-fit rounded-full text-white">
+          <a class="pr-5" href="?allowvr=true" id="vr">Mode VR</a>
+          <a class="pr-5" href="?" id="nonvr">Mode Non-VR</a>
+        </div>
       
-    </canvas>
-  </div>
+      </div>
+      <div class="" id="message-container" >
+        <p class="" id="id-output" >_</p>
+        <p class="" id="desc-output" >_</p>
+      </div>
+    </div>
+    <div class="">
+      <canvas id="three-canvas">
+      
+      </canvas>
     </div>
   </div>
+</div>
 `
 //Creates the Three.js scene
 const scene = new Scene();
@@ -91,7 +94,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 // Add camera, grid, axes and lights to the scene
 scene.add(cameraDolly);
-scene.add(dummyCam)
+camera.add(dummyCam);
 scene.add(ambientLight);
 scene.add(grid);
 scene.add(axes);
@@ -105,10 +108,12 @@ if (allowvr) {
   document.body.append(button);
   // document.body.appendChild(VRButton.createButton(renderer));
   document.querySelector('#vr').style.display = 'none';
+  const controls = new OrbitControls(camera, threeCanvas);
+  controls.update();
 } else {
   // no VR, add some controls
   const controls = new OrbitControls(camera, threeCanvas);
-  controls.target.set(0, 1.6, -2);
+  // controls.target.set(0, 1.6, -2);
   controls.update();
   document.querySelector('#nonvr').style.display = 'none';
 }
@@ -161,14 +166,14 @@ cameraDolly.add(controller2);
 cameraDolly.add(controllerGrip1);
 cameraDolly.add(controllerGrip2);
 
+//Animation loop
+const clock = new Clock();
+
 const animate = () => {
   //WebXR needs 'setAnimationLoop' as opposed to 'requestAnimationFrame'
   // requestAnimationFrame( animate );
   renderer.setAnimationLoop( render );
 };
-
-//Animation loop
-const clock = new Clock();
 
 function render() {
   const dt = clock.getDelta();
@@ -277,8 +282,49 @@ async function mousePick(event) {
     const desc = props.Name.value;
     outputDesc.innerHTML = `Name: ${desc}`;
     // console.log("The props: ", props)
+    let ui = createUI(desc);
+    // ui.position = new Vector3(cameraDolly.position.x, cameraDolly.position.y, cameraDolly.position.z+6)
+    // cameraDolly.add(ui.mesh);
+    // ui.position = new Vector3(controller2.position.x, controller2.position.y, controller2.position.z+1)
+    scene.add(ui.mesh);
+    console.log(ui, ui.position, cameraDolly.position, controller2.position)
+
   }
 }
+
+//Canvas UI
+
+const createUI = (desc) => {
+  const config = {
+    header: {
+      type: "text",
+      position: { top: 0 },
+      paddingTop: 30,
+      height: 70
+    },
+    main: {
+      type: "text",
+      position: { top: 70 },
+      height: 372, // default height is 512 so this is 512 - header height:70 - footer height:70
+      backgroundColor: "#bbb",
+      fontColor: "#000"
+    },
+    footer: {
+      type: "text",
+      position: { bottom: 0 },
+      paddingTop: 30,
+      height: 70
+    }
+  }
+  const content = {
+    header: "Header",
+    main: desc,
+    footer: "Footer"
+  }
+  const ui = new CanvasUI(content, config);
+  ui.position = new Vector3(cameraDolly.position.x, cameraDolly.position.y, cameraDolly.position.z+6)
+  return ui;
+};
 
 threeCanvas.ondblclick = mousePick;
 
@@ -385,9 +431,9 @@ function allowMovement() { letUserMove = true }
 function stopMovement() { letUserMove = false }
 function handleUserMovement(dt) {
     if (letUserMove) {
-        let speed = 2;
-        let moveZ = -dt * speed
-        let saveQuat = cameraDolly.quaternion.clone();
+        const speed = 2;
+        const moveZ = -dt * speed
+        const saveQuat = cameraDolly.quaternion.clone();
         var holder = new Quaternion()
         dummyCam.getWorldQuaternion(holder)
         cameraDolly.quaternion.copy(holder);

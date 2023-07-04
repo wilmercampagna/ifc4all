@@ -16,9 +16,10 @@ camera.position.x = 8;
 const cameraDolly = new Object3D();
 cameraDolly.position.x = 0
 cameraDolly.position.y = 1.6
-cameraDolly.position.z = 5;
+cameraDolly.position.z = -5;
 cameraDolly.add(camera);
 
+cameraDolly.rotation.y = 3;
 //Add dummy camera to accurately get camera orientation in handleMovement function
 const dummyCam = new Object3D();
 

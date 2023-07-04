@@ -1,4 +1,4 @@
-import logo from '../../public/logo.png'
+import logo from '/logo.png'
 
 const navBar = document.createElement('div');
 navBar.innerHTML = `
@@ -18,16 +18,16 @@ navBar.innerHTML = `
 				<a href="/" class="py-4 px-2 text-gray-500 border-b-4 border-purple-500 font-semibold">
 					ifcVR
 				</a>
-				<a href="/" class="py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
+				<a href="/" class=hidden "py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
 					ifcAR
 				</a>
-				<a href="/" class="py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
+				<a href="/" class="hidden py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
 					ifcGames
 				</a>
-				<a href="/" class="py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
+				<a href="/" class="hidden py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
 					Bim 4D
 				</a>
-				<a href="/" class="py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
+				<a href="/" class="hidden py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
 					Bim 5D
 				</a>
 			</div>
