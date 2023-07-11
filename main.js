@@ -60,7 +60,7 @@ document.querySelector('#app').innerHTML = `
         </div>
         <div class="pl-5 mt-2 pt-1 pb-1 bg-cyan-500 hover:bg-cyan-300 w-fit h-fit rounded-full text-white">
           <a class="pr-5" href="?allowvr=true" id="vr">Mode VR</a>
-          <a class="pr-5" href="?" id="nonvr">Mode Non-VR</a>
+          <a class="pr-5" href="?" id="nonvr">Mode Viewer</a>
         </div>
       
       </div>
@@ -108,11 +108,8 @@ const renderer = new WebGLRenderer({
 });
 renderer.setSize(size.width, size.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-// renderer.outputColorSpace = sRGBEncoding;
 renderer.outputEncoding = sRGBEncoding;
 renderer.shadowMap.enabled = true;
-
-// threeCanvas.appendChild(renderer.domElement);
 
 //Check if VR is allowed
 const params = (new URL(document.location)).searchParams;
@@ -122,10 +119,7 @@ if (allowvr) {
   threeCanvas.appendChild(renderer.domElement);
   const button = new VRButton( renderer );
   document.body.append(button);
-  // document.body.appendChild(VRButton.createButton(renderer));
   document.querySelector('#vr').style.display = 'none';
-  const controls = new OrbitControls(camera, threeCanvas);
-  controls.update();
 } else {
   // no VR, add some controls
   const controls = new OrbitControls(camera, threeCanvas);
@@ -133,8 +127,6 @@ if (allowvr) {
   controls.update();
   document.querySelector('#nonvr').style.display = 'none';
 }
-
-
 
 //Variables for VR hand controllers
 let controller1, controller2;
@@ -161,22 +153,22 @@ controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGri
 controllerGrip2 = renderer.xr.getControllerGrip( 1 );
 controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
 
+controller1.name = "Right Controller" 
+controller2.name = "Left Controller"
+
 //Lines to shoot out from VR controllers to help aim
 const geometry = new BufferGeometry().setFromPoints( [ new Vector3( 0, 0, 0 ), new Vector3( 0, 0, - 1 ) ] );
 const line = new Line( geometry );
 line.name = 'line';
 line.scale.z = 5;
 
+controller1.add( line.clone() );
+controller2.add( line.clone() );
+
 scene.add( controller1 );
 scene.add( controller2 );
 scene.add( controllerGrip1 );
 scene.add( controllerGrip2 );
-
-controller1.name = "Right Controller" 
-controller2.name = "Left Controller"
-
-controller1.add( line.clone() );
-controller2.add( line.clone() );
 
 // Needed to add controllers to dolly??
 cameraDolly.add(controller1);

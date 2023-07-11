@@ -1,7 +1,7 @@
 {
     "name": "ifc4all",
     "short_name": "ifc4all",
-    "start_url": ".",
+    "start_url": "./ifc4all",
     "background_color": "#ffffff",
     "theme_color": "#ffffff",
     "display": "standalone",
