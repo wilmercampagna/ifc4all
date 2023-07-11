@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('https://wilmercampagna.github.io/ifc4all/sw.js', { scope: 'https://wilmercampagna.github.io/ifc4all/' })})}

@@ -5,48 +5,49 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   plugins: [
+    VitePWA({
+      registerType: "autoUpdate",
+      devOptions: {
+        enabled: true,
+      },
+      manifest:
+        {
+          "name": "ifc4all",
+          "short_name": "ifc4all",
+          "background_color": "#ffffff",
+          "theme_color": "#ffffff",
+          // "display": "standalone",
+          "icons": [
+            {
+              "src": "public/logo192.png",
+              "sizes": "192x192",
+              "type": "image/png",
+              "purpose": "maskable"
+            },
+            {
+              "src": "public/logo256.png",
+              "sizes": "256x256",
+              "type": "image/png"
+            },
+            {
+              "src": "public/logo512.png",
+              "sizes": "512x512",
+              "type": "image/png"
+            }
+          ] 
+        }
+      }
+    ),
     comlink(),
     legacy({
-        targets: ['defaults', 'not IE 11'],
-      }),
+      targets: ["defaults", "not IE 11"],
+    }),
   ],
-  base: 'https://wilmercampagna.github.io/ifc4all',
+  base: "https://wilmercampagna.github.io/ifc4all",
   worker: {
-    plugins: [
-        VitePWA({
-          registerType: 'autoUpdate',
-          devOptions: {
-            enabled: true
-          },
-          workbox: {
-            clientsClaim: true,
-            skipWaiting: true,
-            globPatterns: ['**/*.{js,css,html,ico,png,svg}']
-          },
-          manifest: {
-            "name": "ifc4all",
-            "short_name": "ifc4all",
-            "start_url": ".",
-            "background_color": "#ffffff",
-            "theme_color": "#ffffff",
-            "display": "standalone",
-            "images": [
-              {
-                "src": "public/grua.png",
-                "sizes": "192x192",
-                "type": "image/png",
-                "purpose": "maskable"
-              },
-              {
-                "src": "public/grua500.png",
-                "sizes": "512x512",
-                "type": "image/png"
-              }
-            ] 
-          }
-        }),
-        comlink(),
-        // comlink({ useModuleWorker: true })
+    plugins: [      
+      comlink(),
+      // comlink({ useModuleWorker: true })
     ],
   },
-})
+});
