@@ -18,7 +18,7 @@ export default defineConfig({
           "start_url": ".",
           "background_color": "#ffffff",
           "theme_color": "#ffffff",
-          // "display": "standalone",
+          "display": "standalone",
           "icons": [
             {
               "src": "logo192.png",
@@ -34,9 +34,20 @@ export default defineConfig({
             {
               "src": "logo512.png",
               "sizes": "512x512",
-              "type": "image/png"
+              "type": "image/png",
+              "purpose": "any"
             }
-          ] 
+          ],
+          "description": "This is a free VR viewer, has been developed with threejs and ifcjs to read ifc files and rederize them in the VR World.",
+          "orientation": "portrait-primary",
+          "dir": "auto",
+          "lang": "en-US",
+          "categories": [
+            "education",
+            "navigation",
+            "productivity",
+            "construction"
+          ],
         }
       }
     ),

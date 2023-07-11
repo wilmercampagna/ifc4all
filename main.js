@@ -32,9 +32,10 @@ import {
 } from 'three-mesh-bvh';
 import { size, camera, cameraDolly, dummyCam } from './src/helpers/Camera.js';
 import ambientLight from './src/helpers/Lights.js';
-import { grid, axes } from './src/helpers/Grids.js';	
+import { grid, axes } from './src/helpers/Grids.js';
 import { CanvasUI } from './src/helpers/CanvasUI.js';
-import { list } from 'postcss';
+// import { list } from 'postcss';
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 
 document.querySelector('#nav').append(navBar);
 
@@ -77,18 +78,6 @@ document.querySelector('#app').innerHTML = `
   </div>
 </div>
 `
-// The service worker
-
-// if('serviceWorker' in navigator) {
-//   navigator.serviceWorker.register('sw.js').then( (registration) => {
-//     console.log("SW registered")
-//     console.log(registration)
-//   }).catch( (error) => {
-//     console.log("SW registration failed")
-//     console.log(error)
-//   })
-// }
-
 //Creates the Three.js scene
 const scene = new Scene();
 
@@ -102,9 +91,9 @@ scene.add(axes);
 //Sets up the renderer, fetching the canvas of the HTML
 const threeCanvas = document.getElementById("three-canvas");
 const renderer = new WebGLRenderer({
-    // canvas: threeCanvas,
-    // alpha: true,
-    antialias: true
+  canvas: threeCanvas,
+  alpha: true,
+  antialias: true
 });
 renderer.setSize(size.width, size.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -116,8 +105,8 @@ const params = (new URL(document.location)).searchParams;
 const allowvr = params.get('allowvr') === 'true';
 if (allowvr) {
   renderer.xr.enabled = true;
-  threeCanvas.appendChild(renderer.domElement);
-  const button = new VRButton( renderer );
+  // threeCanvas.appendChild(renderer.domElement);
+  const button = new VRButton(renderer);
   document.body.append(button);
   document.querySelector('#vr').style.display = 'none';
 } else {
@@ -133,42 +122,42 @@ let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 
 //VR Controllers 
-controller1 = renderer.xr.getController( 0 );
-controller1.addEventListener( 'selectstart', pick );
-controller1.addEventListener( 'selectend', hideDetails );
-controller1.addEventListener( 'squeezestart', allowMovement );
-controller1.addEventListener( 'squeezeend', stopMovement );
+controller1 = renderer.xr.getController(0);
+controller1.addEventListener('selectstart', pick);
+controller1.addEventListener('selectend', hideDetails);
+controller1.addEventListener('squeezestart', allowMovement);
+controller1.addEventListener('squeezeend', stopMovement);
 
 //One can set controller 2 to perform another function on 'select' - currently both set to object picking
-controller2 = renderer.xr.getController( 1 );
-controller2.addEventListener( 'selectstart', highlight );
+controller2 = renderer.xr.getController(1);
+controller2.addEventListener('selectstart', highlight);
 // controller2.addEventListener( 'squeezestart', clearHighlight );
-controller2.addEventListener( 'selectend', clearHighlight );
+controller2.addEventListener('selectend', clearHighlight);
 
 const controllerModelFactory = new XRControllerModelFactory();
 
 // Setup the controller grip
-controllerGrip1 = renderer.xr.getControllerGrip( 0 );
-controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
-controllerGrip2 = renderer.xr.getControllerGrip( 1 );
-controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
+controllerGrip1 = renderer.xr.getControllerGrip(0);
+controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
+controllerGrip2 = renderer.xr.getControllerGrip(1);
+controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
 
-controller1.name = "Right Controller" 
+controller1.name = "Right Controller"
 controller2.name = "Left Controller"
 
 //Lines to shoot out from VR controllers to help aim
-const geometry = new BufferGeometry().setFromPoints( [ new Vector3( 0, 0, 0 ), new Vector3( 0, 0, - 1 ) ] );
-const line = new Line( geometry );
+const geometry = new BufferGeometry().setFromPoints([new Vector3(0, 0, 0), new Vector3(0, 0, - 1)]);
+const line = new Line(geometry);
 line.name = 'line';
 line.scale.z = 5;
 
-controller1.add( line.clone() );
-controller2.add( line.clone() );
+controller1.add(line.clone());
+controller2.add(line.clone());
 
-scene.add( controller1 );
-scene.add( controller2 );
-scene.add( controllerGrip1 );
-scene.add( controllerGrip2 );
+scene.add(controller1);
+scene.add(controller2);
+scene.add(controllerGrip1);
+scene.add(controllerGrip2);
 
 // Needed to add controllers to dolly??
 cameraDolly.add(controller1);
@@ -182,24 +171,24 @@ const clock = new Clock();
 const animate = () => {
   //WebXR needs 'setAnimationLoop' as opposed to 'requestAnimationFrame'
   // requestAnimationFrame( animate );
-  renderer.setAnimationLoop( render );
+  renderer.setAnimationLoop(render);
 };
 
 function render() {
   const dt = clock.getDelta();
   if (controller1) { handleUserMovement(dt) }
-  renderer.render( scene, camera );
+  renderer.render(scene, camera);
 }
-  
+
 animate();
 
 //Adjust the viewport to the size of the browser
 window.addEventListener("resize", () => {
-    size.width = window.innerWidth;
-    size.height = window.innerHeight;
-    camera.aspect = size.width / size.height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(size.width, size.height);
+  size.width = window.innerWidth;
+  size.height = window.innerHeight;
+  camera.aspect = size.width / size.height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(size.width, size.height);
 });
 
 // Sets up the IFC loading
@@ -225,6 +214,46 @@ const setupIfcLoader = async () => {
 
 setupIfcLoader();
 
+// config GTLFExporter
+
+let gltfModel;
+
+function exportGLTF(input) {
+  const gltfExporter = new GLTFExporter();
+  const options = {
+    binary: true,
+    maxTextureSize: 4096,
+    forceIndices: true
+  };
+  gltfExporter.parse(input, function (result) {
+    if (result instanceof ArrayBuffer) {
+      saveArrayBuffer(result);
+    } else {
+      const output = JSON.stringify(result, null, 2);
+      saveString(output);
+    }
+  },
+    function (error) {
+      console.log('An error happened during parsing', error);
+    },
+    options
+  );
+}
+
+function saveString(text) {
+  setPreview(new Blob([text], { type: 'text/plain' }));
+}
+
+function saveArrayBuffer(buffer) {
+  let blob = new Blob([buffer], { type: 'application/octet-stream' })
+  setPreview(blob);
+}
+
+function setPreview(blob) {
+  gltfModel = blob
+}
+
+
 const lambMaterial = new MeshLambertMaterial({ transparent: true, opacity: 0.1, color: 0x77aaff });
 
 const input = document.getElementById("file-input");
@@ -244,6 +273,7 @@ input.addEventListener(
       ifcModels.push(ifcModel);
       scene.add(modelCopy)
       scene.add(ifcModel)
+      exportGLTF(scene)
     });
   },
   false
@@ -258,15 +288,15 @@ const mouse = new Vector2();
 function mouseCast(event) {
   // Computes the position of the mouse on the screen
   const bounds = threeCanvas.getBoundingClientRect();
-  
+
   const x1 = event.clientX - bounds.left;
   const x2 = bounds.right - bounds.left;
   mouse.x = (x1 / x2) * 2 - 1;
-  
+
   const y1 = event.clientY - bounds.top;
   const y2 = bounds.bottom - bounds.top;
   mouse.y = -(y1 / y2) * 2 + 1;
-  
+
   // Places it on the camera pointing to the mouse
   raycaster.setFromCamera(mouse, camera);
   // console.log("The raycaster: ", raycaster)
@@ -332,7 +362,7 @@ const createUI = (desc) => {
     footer: "Footer"
   }
   const ui = new CanvasUI(content, config);
-  ui.position = new Vector3(cameraDolly.position.x, cameraDolly.position.y, cameraDolly.position.z+6)
+  ui.position = new Vector3(cameraDolly.position.x, cameraDolly.position.y, cameraDolly.position.z + 6)
   return ui;
 };
 
@@ -341,98 +371,98 @@ threeCanvas.ondblclick = mousePick;
 // console.log('the ifc loader ifc manager:', ifcLoader.ifcManager)
 
 function cast(controller) {
-  const myTempMatrix = tempMatrix.identity().extractRotation( controller.matrixWorld );
-  raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
-  raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( myTempMatrix );
+  const myTempMatrix = tempMatrix.identity().extractRotation(controller.matrixWorld);
+  raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+  raycaster.ray.direction.set(0, 0, - 1).applyMatrix4(myTempMatrix);
   return raycaster.intersectObjects(ifcModels);
 }
 
 const outputId = document.getElementById("id-output");
 const outputDesc = document.getElementById("desc-output");
 const messageBlock = document.getElementById("message-container");
-let propMesh = new HTMLMesh( messageBlock );
+let propMesh = new HTMLMesh(messageBlock);
 
 async function pick(event) {
-    const controller = event.target;
-    const found = cast(controller)[0];
-    console.log(cast(controller))
-    console.log('the found:', found)
-    if (found) {
-        const index = found.faceIndex;
-        const geometry = found.object.geometry;
-        const ifc = ifcLoader.ifcManager;
-        const id = ifc.getExpressId(geometry, index);
-        const modelID = found.object.modelID;
-        const props = await ifc.getItemProperties(modelID, id);
-        console.log(id);
-        console.log(found.object);
-        const expId = props.expressID;
-        outputId.innerHTML = `ExpressID : ${expId}`;
-        const desc = props.Name.value;
-        outputDesc.innerHTML = `Name: ${desc}`;
-        propMesh.removeFromParent();
-        propMesh = new HTMLMesh( messageBlock );
-        const setX = found.point.x + 0.1*(cameraDolly.position.x - found.point.x);
-        const setY = found.point.y + 0.1*(cameraDolly.position.y - found.point.y);
-        const setZ = found.point.z + 0.1*(cameraDolly.position.z - found.point.z);
-        propMesh.position.set( setX, setY, setZ );
-        // propMesh.quaternion = found.object.mesh.quaternion
-        propMesh.lookAt(cameraDolly.position);
-        propMesh.scale.setScalar( 7 );
-        scene.add(propMesh);
-    }
+  const controller = event.target;
+  const found = cast(controller)[0];
+  console.log(cast(controller))
+  console.log('the found:', found)
+  if (found) {
+    const index = found.faceIndex;
+    const geometry = found.object.geometry;
+    const ifc = ifcLoader.ifcManager;
+    const id = ifc.getExpressId(geometry, index);
+    const modelID = found.object.modelID;
+    const props = await ifc.getItemProperties(modelID, id);
+    console.log(id);
+    console.log(found.object);
+    const expId = props.expressID;
+    outputId.innerHTML = `ExpressID : ${expId}`;
+    const desc = props.Name.value;
+    outputDesc.innerHTML = `Name: ${desc}`;
+    propMesh.removeFromParent();
+    propMesh = new HTMLMesh(messageBlock);
+    const setX = found.point.x + 0.1 * (cameraDolly.position.x - found.point.x);
+    const setY = found.point.y + 0.1 * (cameraDolly.position.y - found.point.y);
+    const setZ = found.point.z + 0.1 * (cameraDolly.position.z - found.point.z);
+    propMesh.position.set(setX, setY, setZ);
+    // propMesh.quaternion = found.object.mesh.quaternion
+    propMesh.lookAt(cameraDolly.position);
+    propMesh.scale.setScalar(7);
+    scene.add(propMesh);
+  }
 }
 
 function hideDetails() {
-    propMesh.removeFromParent();
+  propMesh.removeFromParent();
 }
 
 //Will apply material completely transparent on select
 const highlightStrongMaterial = new MeshLambertMaterial({
-    transparent: true,
-    opacity: 0.9,
-    color: 0xff88ff,
-    depthTest: false
+  transparent: true,
+  opacity: 0.9,
+  color: 0xff88ff,
+  depthTest: false
 })
 
 //For seeing through items
 async function highlight(event) {
-    const controller = await event.target;
-    console.log('the controller:', controller)
-    const found = cast(controller)[0];
-    console.log('the found:', found)
-    if (found) {
-        const index = found.faceIndex;
-        const geometry = found.object.geometry;
-        const id = ifcLoader.ifcManager.getExpressId(geometry, index);
-        const modelID = found.object.modelID;
-        //Creates 'highlight' subset
-        await ifcLoader.ifcManager.createSubset({
-            modelID: modelID,
-            ids: [id],
-            material: highlightStrongMaterial,
-            scene: scene,
-            removePrevious: true,
-            customID: 'highlight-sub'
-        });
-        for (var i = 0; i < ifcModels.length; i++) {
-            //Hide all IFC models (only the transparent copies will remain seen with the highlight subset)
-            ifcModels[i].visible = false;
-        }
-    } else {
-        clearHighlight(event)
+  const controller = await event.target;
+  console.log('the controller:', controller)
+  const found = cast(controller)[0];
+  console.log('the found:', found)
+  if (found) {
+    const index = found.faceIndex;
+    const geometry = found.object.geometry;
+    const id = ifcLoader.ifcManager.getExpressId(geometry, index);
+    const modelID = found.object.modelID;
+    //Creates 'highlight' subset
+    await ifcLoader.ifcManager.createSubset({
+      modelID: modelID,
+      ids: [id],
+      material: highlightStrongMaterial,
+      scene: scene,
+      removePrevious: true,
+      customID: 'highlight-sub'
+    });
+    for (var i = 0; i < ifcModels.length; i++) {
+      //Hide all IFC models (only the transparent copies will remain seen with the highlight subset)
+      ifcModels[i].visible = false;
     }
+  } else {
+    clearHighlight(event)
+  }
 }
 
 //Removes previous highlight
 async function clearHighlight(event) {
-    //Loop through all loaded IFC models
-    for (var i = 0; i < ifcModels.length; i++) {
-        //Remove the 'highlight' subset
-        await ifcLoader.ifcManager.removeSubset(ifcModels[i].modelID, highlightStrongMaterial, 'highlight-sub');
-        //Make the IFC Model visible again
-        ifcModels[i].visible = true;
-    }
+  //Loop through all loaded IFC models
+  for (var i = 0; i < ifcModels.length; i++) {
+    //Remove the 'highlight' subset
+    await ifcLoader.ifcManager.removeSubset(ifcModels[i].modelID, highlightStrongMaterial, 'highlight-sub');
+    //Make the IFC Model visible again
+    ifcModels[i].visible = true;
+  }
 }
 
 //Functions to handle user movement around scene (3 of the 6 DoF)
@@ -440,14 +470,14 @@ var letUserMove = false
 function allowMovement() { letUserMove = true }
 function stopMovement() { letUserMove = false }
 function handleUserMovement(dt) {
-    if (letUserMove) {
-        const speed = 2;
-        const moveZ = -dt * speed
-        const saveQuat = cameraDolly.quaternion.clone();
-        var holder = new Quaternion()
-        dummyCam.getWorldQuaternion(holder)
-        cameraDolly.quaternion.copy(holder);
-        cameraDolly.translateZ(moveZ);
-        cameraDolly.quaternion.copy(saveQuat)
-    }
+  if (letUserMove) {
+    const speed = 2;
+    const moveZ = -dt * speed
+    const saveQuat = cameraDolly.quaternion.clone();
+    var holder = new Quaternion()
+    dummyCam.getWorldQuaternion(holder)
+    cameraDolly.quaternion.copy(holder);
+    cameraDolly.translateZ(moveZ);
+    cameraDolly.quaternion.copy(saveQuat)
+  }
 }
