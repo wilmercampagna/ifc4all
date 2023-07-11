@@ -16,7 +16,7 @@ import {
   Mesh,
   Clock,
   Quaternion,
-  // sRGBEncoding
+  sRGBEncoding
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
@@ -92,18 +92,6 @@ if('serviceWorker' in navigator) {
 //Creates the Three.js scene
 const scene = new Scene();
 
-//Sets up the renderer, fetching the canvas of the HTML
-const threeCanvas = document.getElementById("three-canvas");
-const renderer = new WebGLRenderer({
-    canvas: threeCanvas,
-    alpha: true,
-    antialias: true
-});
-
-renderer.setSize(size.width, size.height);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-// renderer.outputColorSpace = sRGBEncoding;
-
 // Add camera, grid, axes and lights to the scene
 scene.add(cameraDolly);
 camera.add(dummyCam);
@@ -111,11 +99,27 @@ scene.add(ambientLight);
 scene.add(grid);
 scene.add(axes);
 
+//Sets up the renderer, fetching the canvas of the HTML
+const threeCanvas = document.getElementById("three-canvas");
+const renderer = new WebGLRenderer({
+    // canvas: threeCanvas,
+    // alpha: true,
+    antialias: true
+});
+renderer.setSize(size.width, size.height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// renderer.outputColorSpace = sRGBEncoding;
+renderer.outputEncoding = sRGBEncoding;
+renderer.shadowMap.enabled = true;
+
+// threeCanvas.appendChild(renderer.domElement);
+
 //Check if VR is allowed
 const params = (new URL(document.location)).searchParams;
 const allowvr = params.get('allowvr') === 'true';
 if (allowvr) {
   renderer.xr.enabled = true;
+  threeCanvas.appendChild(renderer.domElement);
   const button = new VRButton( renderer );
   document.body.append(button);
   // document.body.appendChild(VRButton.createButton(renderer));
@@ -129,6 +133,8 @@ if (allowvr) {
   controls.update();
   document.querySelector('#nonvr').style.display = 'none';
 }
+
+
 
 //Variables for VR hand controllers
 let controller1, controller2;
@@ -212,10 +218,10 @@ const ifcLoader = new IFCLoader();
 const setupIfcLoader = async () => {
   // const ifcLoader = new IFCLoader();
   await ifcLoader.ifcManager.setWasmPath("wasm/");
-  ifcLoader.ifcManager.applyWebIfcConfig({
-    COORDINATE_TO_ORIGIN: true,
-    USE_FAST_BOOLS: false,
-  });
+  // ifcLoader.ifcManager.applyWebIfcConfig({
+  //   COORDINATE_TO_ORIGIN: true,
+  //   USE_FAST_BOOLS: false,
+  // });
   await ifcLoader.ifcManager.useWebWorkers(false, "wasm/IFCWorker.js");
   // ifcLoader.ifcManager.useJSONData(true);
   ifcLoader.ifcManager.setupThreeMeshBVH(
