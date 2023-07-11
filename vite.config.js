@@ -13,24 +13,26 @@ export default defineConfig({
       manifest:
         {
           "name": "ifc4all",
+          "id": "/ifc4all/",
           "short_name": "ifc4all",
+          "start_url": ".",
           "background_color": "#ffffff",
           "theme_color": "#ffffff",
           // "display": "standalone",
           "icons": [
             {
-              "src": "public/logo192.png",
+              "src": "logo192.png",
               "sizes": "192x192",
               "type": "image/png",
               "purpose": "maskable"
             },
             {
-              "src": "public/logo256.png",
+              "src": "logo256.png",
               "sizes": "256x256",
               "type": "image/png"
             },
             {
-              "src": "public/logo512.png",
+              "src": "logo512.png",
               "sizes": "512x512",
               "type": "image/png"
             }
