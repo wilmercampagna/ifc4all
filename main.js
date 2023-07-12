@@ -34,7 +34,7 @@ import directionalLight from './src/helpers/Lights.js';
 import { grid, axes } from './src/helpers/Grids.js';
 import { CanvasUI } from './src/helpers/CanvasUI.js';
 // import { list } from 'postcss';
-import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
+// import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 
 import { registerSW } from 'virtual:pwa-register'
 
@@ -202,7 +202,6 @@ const ifcModels = [];
 const ifcLoader = new IFCLoader();
 
 const setupIfcLoader = async () => {
-  // const ifcLoader = new IFCLoader();
   await ifcLoader.ifcManager.setWasmPath("wasm/");
   // ifcLoader.ifcManager.applyWebIfcConfig({
   //   COORDINATE_TO_ORIGIN: true,
@@ -221,42 +220,42 @@ setupIfcLoader();
 
 // config GTLFExporter
 
-let gltfModel;
+// let gltfModel;
 
-function exportGLTF(input) {
-  const gltfExporter = new GLTFExporter();
-  const options = {
-    binary: true,
-    maxTextureSize: 4096,
-    forceIndices: true
-  };
-  gltfExporter.parse(input, function (result) {
-    if (result instanceof ArrayBuffer) {
-      saveArrayBuffer(result);
-    } else {
-      const output = JSON.stringify(result, null, 2);
-      saveString(output);
-    }
-  },
-    function (error) {
-      console.log('An error happened during parsing', error);
-    },
-    options
-  );
-}
+// function exportGLTF(input) {
+//   const gltfExporter = new GLTFExporter();
+//   const options = {
+//     binary: true,
+//     maxTextureSize: 4096,
+//     forceIndices: true
+//   };
+//   gltfExporter.parse(input, function (result) {
+//     if (result instanceof ArrayBuffer) {
+//       saveArrayBuffer(result);
+//     } else {
+//       const output = JSON.stringify(result, null, 2);
+//       saveString(output);
+//     }
+//   },
+//     function (error) {
+//       console.log('An error happened during parsing', error);
+//     },
+//     options
+//   );
+// }
 
-function saveString(text) {
-  setPreview(new Blob([text], { type: 'text/plain' }));
-}
+// function saveString(text) {
+//   setPreview(new Blob([text], { type: 'text/plain' }));
+// }
 
-function saveArrayBuffer(buffer) {
-  let blob = new Blob([buffer], { type: 'application/octet-stream' })
-  setPreview(blob);
-}
+// function saveArrayBuffer(buffer) {
+//   let blob = new Blob([buffer], { type: 'application/octet-stream' })
+//   setPreview(blob);
+// }
 
-function setPreview(blob) {
-  gltfModel = blob
-}
+// function setPreview(blob) {
+//   gltfModel = blob
+// }
 
 
 const lambMaterial = new MeshLambertMaterial({ transparent: true, opacity: 0.1, color: 0x77aaff });
@@ -266,7 +265,6 @@ input.addEventListener(
   "change",
   async (changed) => {
     const ifcURL = URL.createObjectURL(changed.target.files[0]);
-    // await ifcLoader.ifcManager.useWebWorkers(true, "wasm/IFCWorker.js");
     const ifcModel = await ifcLoader.loadAsync(ifcURL);
     const modelCopy = new Mesh(ifcModel.geometry, lambMaterial);
     ifcModels.push(ifcModel);
@@ -278,7 +276,7 @@ input.addEventListener(
     //   ifcModels.push(ifcModel);
     //   scene.add(modelCopy)
     //   scene.add(ifcModel)
-    exportGLTF(scene)
+    // exportGLTF(scene)
     // });
   },
   false
