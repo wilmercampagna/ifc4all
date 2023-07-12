@@ -267,19 +267,19 @@ input.addEventListener(
   async (changed) => {
     const ifcURL = URL.createObjectURL(changed.target.files[0]);
     // await ifcLoader.ifcManager.useWebWorkers(true, "wasm/IFCWorker.js");
-    // const ifcModel = await ifcLoader.loadAsync(ifcURL);
-    // const modelCopy = new Mesh(ifcModel.geometry, lambMaterial);
-    // ifcModels.push(ifcModel);
-    // scene.add(modelCopy)
-    // scene.add(ifcModel)
-    await ifcLoader.load(ifcURL, (ifcModel) => {
-      //Make a translucent copy geometry - so when IFC model is hidden on item highlight, the remaining items take 'ghost' view  
-      const modelCopy = new Mesh(ifcModel.geometry, lambMaterial);
-      ifcModels.push(ifcModel);
-      scene.add(modelCopy)
-      scene.add(ifcModel)
-      exportGLTF(scene)
-    });
+    const ifcModel = await ifcLoader.loadAsync(ifcURL);
+    const modelCopy = new Mesh(ifcModel.geometry, lambMaterial);
+    ifcModels.push(ifcModel);
+    scene.add(modelCopy)
+    scene.add(ifcModel)
+    // await ifcLoader.load(ifcURL, (ifcModel) => {
+    //   //Make a translucent copy geometry - so when IFC model is hidden on item highlight, the remaining items take 'ghost' view  
+    //   const modelCopy = new Mesh(ifcModel.geometry, lambMaterial);
+    //   ifcModels.push(ifcModel);
+    //   scene.add(modelCopy)
+    //   scene.add(ifcModel)
+    exportGLTF(scene)
+    // });
   },
   false
 );
