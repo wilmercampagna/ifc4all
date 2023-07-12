@@ -1,19 +1,20 @@
 import { defineConfig } from 'vite'
 import legacy from '@vitejs/plugin-legacy'
-import { comlink } from 'vite-plugin-comlink'
+// import { comlink } from 'vite-plugin-comlink'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   plugins: [
-    VitePWA({
-      injectRegister: 'auto',
+    VitePWA(
+      {
       registerType: "autoUpdate",
-      devOptions: {
-        enabled: true,
-      },
+      // injectRegister: 'auto',      
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm}'],
+        clientsClaim: true,
+        skipWaiting: true,
         sourcemap: true,
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -57,6 +58,9 @@ export default defineConfig({
             }
           },
         ]
+      },
+      devOptions: {
+        enabled: true,
       },
       manifest:
         {
@@ -117,16 +121,16 @@ export default defineConfig({
         }
       }
     ),
-    comlink(),
-    legacy({
-      targets: ["defaults", "not IE 11"],
-    }),
+    // comlink(),
+    // legacy({
+    //   targets: ["defaults", "not IE 11"],
+    // }),
   ],
   base: "https://wilmercampagna.github.io/ifc4all",
-  worker: {
-    plugins: [      
-      comlink(),
-      // comlink({ useModuleWorker: true })
-    ],
-  },
+  // worker: {
+  //   plugins: [      
+  //     comlink(),
+  //     // comlink({ useModuleWorker: true })
+  //   ],
+  // },
 });
