@@ -6,9 +6,57 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   plugins: [
     VitePWA({
+      injectRegister: 'auto',
       registerType: "autoUpdate",
       devOptions: {
         enabled: true,
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        sourcemap: true,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              },
+            }
+          },
+          {
+            handler: 'NetworkOnly',
+            urlPattern: /\/api\/.*\/*.json/,
+            method: 'POST',
+            options: {
+              backgroundSync: {
+                name: 'myQueueName',
+                options: {
+                  maxRetentionTime: 24 * 60
+                }
+              }
+            }
+          },
+        ]
       },
       manifest:
         {
@@ -19,6 +67,16 @@ export default defineConfig({
           "background_color": "#ffffff",
           "theme_color": "#ffffff",
           "display": "standalone",
+          "display_override": [
+            "window-controls-overlay",
+            "standalone",
+            "browser",
+            "side_panel"
+          ],
+          "side_panel": {
+            "preferred_width": 600
+          },
+          "handle_links": "auto",
           "icons": [
             {
               "src": "logo192.png",
@@ -47,6 +105,14 @@ export default defineConfig({
             "navigation",
             "productivity",
             "construction"
+          ],
+          "screenshots" : [
+            {
+              "src": "screenshot.png",
+              "sizes": "1442x764",
+              "type": "image/png",
+              "platform": "wide",
+            }
           ],
         }
       }
