@@ -15,8 +15,7 @@ import {
   MeshLambertMaterial,
   Mesh,
   Clock,
-  Quaternion,
-  sRGBEncoding
+  Quaternion
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
@@ -31,7 +30,7 @@ import {
   disposeBoundsTree
 } from 'three-mesh-bvh';
 import { size, camera, cameraDolly, dummyCam } from './src/helpers/Camera.js';
-import ambientLight from './src/helpers/Lights.js';
+import directionalLight from './src/helpers/Lights.js';
 import { grid, axes } from './src/helpers/Grids.js';
 import { CanvasUI } from './src/helpers/CanvasUI.js';
 // import { list } from 'postcss';
@@ -84,7 +83,7 @@ const scene = new Scene();
 // Add camera, grid, axes and lights to the scene
 scene.add(cameraDolly);
 camera.add(dummyCam);
-scene.add(ambientLight);
+scene.add(directionalLight);
 scene.add(grid);
 scene.add(axes);
 
@@ -97,7 +96,6 @@ const renderer = new WebGLRenderer({
 });
 renderer.setSize(size.width, size.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.outputEncoding = sRGBEncoding;
 renderer.shadowMap.enabled = true;
 
 //Check if VR is allowed
