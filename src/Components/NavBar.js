@@ -15,13 +15,13 @@ navBar.innerHTML = `
 				</a>
 			</div>
 			<div class="hidden md:flex items-center space-x-1">
-				<a href="/" class="py-4 px-2 text-gray-500 border-b-4 border-purple-500 font-semibold">
+				<a href="../pages/ifcVR.html" class="py-4 px-2 text-gray-500 border-b-4 border-purple-500 font-semibold">
 					ifcVR
 				</a>
-				<a href="/" class=hidden "py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
+				<a href="../pages/ifcAR.html" class="py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
 					ifcAR
 				</a>
-				<a href="/" class="hidden py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
+				<a href="../pages/ifcGame.html" class="py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">
 					ifcGames
 				</a>
 				<a href="/" class="hidden py-4 px-2 text-gray-500 font-semibold hover:text-purple-500 transition duration-300">

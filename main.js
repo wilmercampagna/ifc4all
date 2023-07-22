@@ -372,6 +372,10 @@ const createUI = (desc) => {
 threeCanvas.ondblclick = mousePick;
 
 // console.log('the ifc loader ifc manager:', ifcLoader.ifcManager)
+const outputId = document.getElementById("id-output");
+const outputDesc = document.getElementById("desc-output");
+const messageBlock = document.getElementById("message-container");
+let propMesh = new HTMLMesh(messageBlock);
 
 function cast(controller) {
   const myTempMatrix = tempMatrix.identity().extractRotation(controller.matrixWorld);
@@ -379,11 +383,6 @@ function cast(controller) {
   raycaster.ray.direction.set(0, 0, - 1).applyMatrix4(myTempMatrix);
   return raycaster.intersectObjects(ifcModels);
 }
-
-const outputId = document.getElementById("id-output");
-const outputDesc = document.getElementById("desc-output");
-const messageBlock = document.getElementById("message-container");
-let propMesh = new HTMLMesh(messageBlock);
 
 async function pick(event) {
   const controller = event.target;
